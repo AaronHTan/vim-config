@@ -4,7 +4,6 @@
 -- See the kickstart.nvim README for more information
 return {
 
-
   -- Claude Code plugin
   {
     'greggh/claude-code.nvim',
@@ -73,93 +72,6 @@ return {
           scrolling = true, -- Enable scrolling keymaps (<C-f/b>) for page up/down
         },
       }
-    end,
-  },
-
-  -- LSP Configuration for additional language servers
-  {
-    'neovim/nvim-lspconfig',
-    opts = function()
-      local servers = {
-        -- Python (using pyright instead of pylsp)
-        pyright = {},
-
-        -- Rust
-        rust_analyzer = {
-          settings = {
-            ['rust-analyzer'] = {
-              cargo = { buildScripts = { enable = true } },
-              procMacro = { enable = true },
-              checkOnSave = {
-                command = 'clippy',
-              },
-            },
-          },
-        },
-
-        -- C/C++
-        clangd = {
-          cmd = { 'clangd', '--background-index', '--clang-tidy', '--header-insertion=iwyu' },
-          filetypes = { 'c', 'cpp', 'objc', 'objcpp', 'cuda', 'proto' },
-        },
-
-        -- Go
-        gopls = {
-          settings = {
-            gopls = {
-              analyses = {
-                unusedparams = true,
-                shadow = true,
-              },
-              staticcheck = true,
-              gofumpt = true,
-            },
-          },
-        },
-
-        -- OCaml
-        ocamllsp = {},
-
-        -- TypeScript/JavaScript
-        ts_ls = {
-          filetypes = { 'typescript', 'typescriptreact', 'typescript.tsx', 'javascript', 'javascriptreact', 'javascript.jsx' },
-          settings = {
-            typescript = {
-              updateImportsOnFileMove = { enabled = 'always' },
-              suggest = {
-                completeFunctionCalls = true,
-              },
-              inlayHints = {
-                includeInlayParameterNameHints = 'all',
-                includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                includeInlayFunctionParameterTypeHints = true,
-                includeInlayVariableTypeHints = true,
-                includeInlayPropertyDeclarationTypeHints = true,
-                includeInlayFunctionLikeReturnTypeHints = true,
-                includeInlayEnumMemberValueHints = true,
-              },
-            },
-            javascript = {
-              updateImportsOnFileMove = { enabled = 'always' },
-              suggest = {
-                completeFunctionCalls = true,
-              },
-              inlayHints = {
-                includeInlayParameterNameHints = 'all',
-                includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-                includeInlayFunctionParameterTypeHints = true,
-                includeInlayVariableTypeHints = true,
-                includeInlayPropertyDeclarationTypeHints = true,
-                includeInlayFunctionLikeReturnTypeHints = true,
-                includeInlayEnumMemberValueHints = true,
-              },
-            },
-          },
-        },
-      }
-
-      -- Return the servers to be merged with the main config
-      return { servers = servers }
     end,
   },
 }
