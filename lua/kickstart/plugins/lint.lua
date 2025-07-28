@@ -7,6 +7,11 @@ return {
       local lint = require 'lint'
       lint.linters_by_ft = {
         markdown = { 'markdownlint' },
+        python = { 'flake8', 'mypy' }, -- Additional Python linting
+        rust = {}, -- rust_analyzer with clippy is usually sufficient
+        c = { 'cppcheck' },
+        cpp = { 'cppcheck' },
+        go = { 'golangcilint' },
       }
 
       -- To allow other plugins to add linters to require('lint').linters_by_ft,
