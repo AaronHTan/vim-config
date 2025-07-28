@@ -3,6 +3,8 @@
 --
 -- See the kickstart.nvim README for more information
 return {
+
+
   -- Claude Code plugin
   {
     'greggh/claude-code.nvim',
