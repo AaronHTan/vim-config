@@ -196,6 +196,20 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- vim.keymap.set('n', '<right>', '<cmd>echo "Use l to move!!"<CR>')
 -- vim.keymap.set('n', '<up>', '<cmd>echo "Use k to move!!"<CR>')
 -- vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
+-- Use '<M-key>' for Alt. If that doesn't work, your terminal might need '<D-key>'.
+
+vim.keymap.set('n', '<C-Up>', ':resize -2<CR>', { noremap = true, silent = true, desc = 'Decrease window height' })
+vim.keymap.set('n', '<C-Down>', ':resize +2<CR>', { noremap = true, silent = true, desc = 'Increase window height' })
+vim.keymap.set('n', '<C-Left>', ':vertical resize -2<CR>', { noremap = true, silent = true, desc = 'Decrease window width' })
+vim.keymap.set('n', '<C-Right>', ':vertical resize +2<CR>', { noremap = true, silent = true, desc = 'Increase window width' })
+
+-- Visual --
+-- Stay in indent mode
+--
+vim.keymap.set('v', '<', '<gv', { noremap = true, silent = true, desc = 'Stay in visual mode while indenting' })
+vim.keymap.set('v', '>', '>gv', { noremap = true, silent = true, desc = 'Stay in visual mode while indenting' })
+
+vim.keymap.set('n', '<C-t>', '<cmd>ToggleTerm<CR>', { noremap = true, silent = true, desc = 'Easy terminal toggle' })
 
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
@@ -211,9 +225,6 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 -- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
 -- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
 -- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
-
--- NOTE: testing
-vim.keymap.set('n', '<leader>cc', '<cmd>ClaudeCode<CR>', { desc = 'Toggle Claude Code' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -857,6 +868,10 @@ require('lazy').setup({
         -- See :h blink-cmp-config-keymap for defining your own keymap
         preset = 'default',
 
+        -- Custom keymaps for documentation scrolling
+        ['<C-d>'] = { 'scroll_documentation_down' },
+        ['<C-u>'] = { 'scroll_documentation_up' },
+
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
       },
@@ -868,16 +883,21 @@ require('lazy').setup({
       },
 
       completion = {
-        -- By default, you may press `<c-space>` to show the documentation.
-        -- Optionally, set `auto_show = true` to show the documentation after a delay.
-        documentation = { auto_show = false, auto_show_delay_ms = 500 },
-        
+        -- Automatically show documentation for the selected item
+        documentation = {
+          auto_show = true, -- Auto-show documentation
+          auto_show_delay_ms = 200, -- Show after 200ms
+          window = {
+            border = 'rounded', -- Optional: nice border for docs
+          },
+        },
+
         -- Show completion menu automatically
         menu = {
           enabled = true,
           auto_show = true,
         },
-        
+
         -- Trigger settings
         keyword = {
           -- Show completions after typing at least 1 character
@@ -1017,6 +1037,7 @@ require('lazy').setup({
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   { import = 'custom.plugins' },
+
   --
   -- For additional information with loading, sourcing and examples see `:help lazy.nvim-🔌-plugin-spec`
   -- Or use telescope!
