@@ -10,8 +10,6 @@ return {
         python = { 'flake8' }, -- Additional Python linting
         rust = {}, -- rust_analyzer with clippy is usually sufficient
         c = { 'cppcheck' },
-        cpp = { 'cppcheck' },
-        go = { 'golangcilint' },
         javascript = { 'eslint' },
         typescript = { 'eslint' },
       }
