@@ -244,6 +244,38 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+-- =============================================================================
+--  TRANSPARENT BACKGROUND (AUTOCMD SOLUTION)
+-- =============================================================================
+-- Define the highlight groups to make transparent
+local highlights = {
+  'Normal',
+  'NormalNC',
+  'NormalFloat',
+  'SignColumn',
+  'LineNr',
+  'CursorLineNr',
+  'TabLineFill',
+  'WinSeparator',
+  'TelescopeNormal',
+  'WhichKeyFloat',
+}
+
+-- Create an autocommand group to ensure this only gets defined once
+local transparent_augroup = vim.api.nvim_create_augroup('TransparentBg', { clear = true })
+
+-- Create the autocommand
+vim.api.nvim_create_autocmd('ColorScheme', {
+  group = transparent_augroup,
+  pattern = '*', -- Match any colorscheme
+  callback = function()
+    -- Apply transparency to all highlight groups in the list
+    for _, group in ipairs(highlights) do
+      vim.api.nvim_set_hl(0, group, { bg = 'NONE', ctermbg = 'NONE' })
+    end
+  end,
+})
+
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
