@@ -231,6 +231,55 @@ vim.keymap.set('t', 'jk', '<C-\\><C-n>', { desc = 'Use jk to enter in terminal n
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
 
+-- =============================================================================
+--  TRANSPARENT BACKGROUND (AUTOCMD SOLUTION)
+-- =============================================================================
+-- Define the highlight groups to make transparent
+local highlights = {
+  'Normal',
+  'NormalNC',
+  'NormalFloat',
+  'SignColumn',
+  'LineNr',
+  'CursorLineNr',
+  'EndOfBuffer',
+  'EndOfBufferFill',
+  'TabLineFill',
+  'WinSeparator',
+  'NvimTreeNormal',
+  'NeoTreeNormal',
+  'NeoTreeNormalNC',
+  'TelescopeNormal',
+  'WhichKeyFloat',
+}
+
+-- Create an autocommand group to ensure this only gets defined once
+local transparent_augroup = vim.api.nvim_create_augroup('TransparentBg', { clear = true })
+
+-- Create the autocommand
+vim.api.nvim_create_autocmd('ColorScheme', {
+  group = transparent_augroup,
+  pattern = '*', -- Match any colorscheme
+  callback = function()
+    -- Apply transparency to all highlight groups in the list
+    for _, group in ipairs(highlights) do
+      vim.api.nvim_set_hl(0, group, { bg = 'NONE', ctermbg = 'NONE' })
+    end
+    -- Hide the ~ at end of buffer
+    vim.api.nvim_set_hl(0, 'EndOfBuffer', { fg = 'NONE', bg = 'NONE' })
+  end,
+})
+
+-- Also apply transparency immediately after loading
+vim.api.nvim_create_autocmd('VimEnter', {
+  group = transparent_augroup,
+  callback = function()
+    for _, group in ipairs(highlights) do
+      vim.api.nvim_set_hl(0, group, { bg = 'NONE', ctermbg = 'NONE' })
+    end
+    vim.api.nvim_set_hl(0, 'EndOfBuffer', { fg = 'NONE', bg = 'NONE' })
+  end,
+})
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
 --  See `:help vim.hl.on_yank()`
@@ -930,25 +979,48 @@ require('lazy').setup({
     },
   },
 
-  { -- You can easily change to a different colorscheme.
-    -- Change the name of the colorscheme plugin below, and then
-    -- change the command in the config to whatever the name of that colorscheme is.
-    --
-    -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
+  -- Dracula colorscheme for dark mode
+  {
+    'Mofiqul/dracula.nvim',
+    lazy = true,
+    priority = 1001,
+  },
+
+  -- Gruvbox colorscheme for light mode
+  {
+    'ellisonleao/gruvbox.nvim',
+    lazy = false,
+    priority = 1000,
     config = function()
-      ---@diagnostic disable-next-line: missing-fields
-      require('tokyonight').setup {
-        styles = {
-          comments = { italic = false }, -- Disable italics in comments
+      require('gruvbox').setup {
+        contrast = 'hard',
+        italic = {
+          strings = false,
+          emphasis = false,
+          comments = false,
+          operators = false,
+          folds = false,
         },
       }
 
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      -- Detect system appearance and set colorscheme accordingly
+      local function get_system_appearance()
+        local handle = io.popen 'defaults read -g AppleInterfaceStyle 2>/dev/null'
+        if handle then
+          local result = handle:read '*a'
+          handle:close()
+          return result:match 'Dark' ~= nil
+        end
+        return false
+      end
+
+      -- Load colorscheme based on system appearance
+      if get_system_appearance() then
+        vim.cmd.colorscheme 'dracula'
+      else
+        vim.o.background = 'light'
+        vim.cmd.colorscheme 'gruvbox'
+      end
     end,
   },
 
