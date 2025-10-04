@@ -270,16 +270,6 @@ vim.api.nvim_create_autocmd('ColorScheme', {
   end,
 })
 
--- Also apply transparency immediately after loading
-vim.api.nvim_create_autocmd('VimEnter', {
-  group = transparent_augroup,
-  callback = function()
-    for _, group in ipairs(highlights) do
-      vim.api.nvim_set_hl(0, group, { bg = 'NONE', ctermbg = 'NONE' })
-    end
-    vim.api.nvim_set_hl(0, 'EndOfBuffer', { fg = 'NONE', bg = 'NONE' })
-  end,
-})
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
 --  See `:help vim.hl.on_yank()`
@@ -435,6 +425,7 @@ require('lazy').setup({
     event = 'VimEnter',
     dependencies = {
       'nvim-lua/plenary.nvim',
+      'debugloop/telescope-undo.nvim',
       { -- If encountering errors, see telescope-fzf-native README for installation instructions
         'nvim-telescope/telescope-fzf-native.nvim',
 
@@ -489,12 +480,24 @@ require('lazy').setup({
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
           },
+          undo = {
+            use_delta = true,
+            use_custom_command = nil, -- setting this implies `use_delta = false`. Accepted format is: { "bash", "-c", "echo '$DIFF' | delta" }
+            side_by_side = false,
+            vim_diff_opts = {
+              ctxlen = vim.o.scrolloff,
+            },
+            entry_format = 'state #$ID, $STAT, $TIME',
+            time_format = '',
+            saved_only = false,
+          },
         },
       }
 
       -- Enable Telescope extensions if they are installed
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
+      pcall(require('telescope').load_extension 'undo')
 
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
@@ -508,6 +511,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
+      vim.keymap.set('n', '<leader>u', '<cmd>Telescope undo<cr>', { desc = '[U]ndo search' })
 
       -- Slightly advanced example of overriding default behavior and theme
       vim.keymap.set('n', '<leader>/', function()
