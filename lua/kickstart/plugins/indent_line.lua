@@ -5,8 +5,14 @@ return {
     -- See `:help ibl`
     main = 'ibl',
     event = 'VeryLazy',
-    opts = {
-      scope = { enabled = false },
-    },
+    config = function()
+      -- Set up highlight groups before setup
+      vim.api.nvim_set_hl(0, 'IblScope', { link = 'Function' })
+      vim.api.nvim_set_hl(0, 'IblIndent', { link = 'LineNr' })
+
+      require('ibl').setup({
+        scope = { enabled = false },
+      })
+    end,
   },
 }

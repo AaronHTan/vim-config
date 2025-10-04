@@ -224,6 +224,8 @@ vim.keymap.set('t', 'jk', '<C-\\><C-n>', { desc = 'Use jk to enter in terminal n
 -- Easy terminal color changing
 vim.keymap.set('n', '<leader>cs', [[<cmd>Telescope colorscheme<cr>]], { desc = 'Change the colorscheme' })
 
+-- Toggle transparency (keymap will be set after the toggle function is defined)
+
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
 -- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
 -- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
@@ -245,8 +247,9 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- =============================================================================
---  TRANSPARENT BACKGROUND (AUTOCMD SOLUTION)
+--  TRANSPARENT BACKGROUND (TOGGLEABLE)
 -- =============================================================================
+
 -- Define the highlight groups to make transparent
 local highlights = {
   'Normal',
@@ -259,7 +262,33 @@ local highlights = {
   'WinSeparator',
   'TelescopeNormal',
   'WhichKeyFloat',
+  'NeoTreeNormal',
+  'NeoTreeNormalNC',
+  'NeoTreeEndOfBuffer',
 }
+
+-- Function to apply transparency
+local function apply_transparency()
+  if vim.g.transparency_enabled then
+    for _, group in ipairs(highlights) do
+      vim.api.nvim_set_hl(0, group, { bg = 'NONE', ctermbg = 'NONE' })
+    end
+  end
+end
+
+-- Function to toggle transparency
+local function toggle_transparency()
+  vim.g.transparency_enabled = not vim.g.transparency_enabled
+  if vim.g.transparency_enabled then
+    -- Apply transparency
+    apply_transparency()
+    vim.notify('Transparency enabled', vim.log.levels.INFO)
+  else
+    -- Reload colorscheme to restore backgrounds
+    vim.cmd('colorscheme ' .. vim.g.colors_name)
+    vim.notify('Transparency disabled', vim.log.levels.INFO)
+  end
+end
 
 -- Create an autocommand group to ensure this only gets defined once
 local transparent_augroup = vim.api.nvim_create_augroup('TransparentBg', { clear = true })
@@ -268,13 +297,21 @@ local transparent_augroup = vim.api.nvim_create_augroup('TransparentBg', { clear
 vim.api.nvim_create_autocmd('ColorScheme', {
   group = transparent_augroup,
   pattern = '*', -- Match any colorscheme
-  callback = function()
-    -- Apply transparency to all highlight groups in the list
-    for _, group in ipairs(highlights) do
-      vim.api.nvim_set_hl(0, group, { bg = 'NONE', ctermbg = 'NONE' })
-    end
-  end,
+  callback = apply_transparency,
 })
+
+-- Keymap for toggling transparency
+vim.keymap.set('n', '<leader>tt', toggle_transparency, { desc = '[T]oggle [T]ransparency' })
+
+-- =============================================================================
+--  AUTOMATIC COLORSCHEME DETECTION
+-- =============================================================================
+-- Create a command to sync colorscheme based on terminal background
+vim.api.nvim_create_user_command('SyncColorscheme', function()
+  vim.o.background = 'light'
+  vim.cmd.colorscheme 'gruvbox'
+  vim.notify('Colorscheme synced to light mode', vim.log.levels.INFO)
+end, { desc = 'Sync colorscheme to terminal background' })
 
 -- [[ Install `lazy.nvim` plugin manager ]]
 --    See `:help lazy.nvim.txt` or https://github.com/folke/lazy.nvim for more info
@@ -996,15 +1033,10 @@ require('lazy').setup({
 
   {
     'catppuccin/nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
     config = function()
       ---@diagnostic disable-next-line: missing-fields
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'catppuccin-latte'
+      require('catppuccin').setup {}
     end,
-
     opt = {
       transparent = true,
       styles = {
@@ -1012,6 +1044,22 @@ require('lazy').setup({
         float = 'transparent',
       },
     },
+  },
+
+  {
+    'Mofiqul/dracula.nvim',
+    config = function()
+      require('dracula').setup {}
+    end,
+  },
+
+  {
+    'ellisonleao/gruvbox.nvim',
+    priority = 1000, -- Make sure to load this before all the other start plugins.
+    config = function()
+      -- priority = 1000, -- Make sure to load this before all the other start plugins.
+      require('gruvbox').setup {}
+    end,
   },
 
   -- Highlight todo, notes, etc in comments
@@ -1128,6 +1176,16 @@ require('lazy').setup({
       lazy = '💤 ',
     },
   },
+})
+
+-- =============================================================================
+--  INITIALIZE COLORSCHEME ON STARTUP
+-- =============================================================================
+-- Automatically sync colorscheme on startup (after plugins are loaded)
+vim.api.nvim_create_autocmd('VimEnter', {
+  callback = function()
+    vim.cmd 'SyncColorscheme'
+  end,
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
