@@ -200,6 +200,7 @@ sudo apt install make gcc ripgrep unzip git xclip neovim
 </details>
 
 #### Linux Install
+
 <details><summary>Ubuntu Install Steps</summary>
 
 ```
@@ -239,3 +240,7 @@ sudo pacman -S --noconfirm --needed gcc make git ripgrep fd unzip neovim
 ```
 </details>
 
+
+$$
+3x=5
+$$
