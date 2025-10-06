@@ -8,12 +8,6 @@ return {
   { 'tpope/vim-fugitive', event = 'VeryLazy' },
 
   {
-    'natecraddock/workspaces.nvim',
-    config = function()
-      require('workspaces').setup()
-    end,
-  },
-  {
     'coder/claudecode.nvim',
     dependencies = { 'folke/snacks.nvim' },
     lazy = false,
